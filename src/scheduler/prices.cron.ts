@@ -64,10 +64,6 @@ export class PricesCron {
 
         if (avgPrice === null) return;
 
-        await this.coinsService.update(
-            modelTarget,
-            { timestamp: timestamp },
-            { timestamp: timestamp, value: avgPrice },
-        );
+        await this.coinsService.update(modelTarget, { timestamp }, { timestamp, value: avgPrice });
     }
 }
