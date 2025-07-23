@@ -74,11 +74,11 @@ export class CoinsService {
     }
 
     getDataAveragePrice(data: any, attributeName: string) {
-        let count = data.length;
+        const count = data.length;
         let avg = 0.0;
         let sum = 0.0;
 
-        if (count == 0) return null;
+        if (count === 0) return null;
 
         for (let i = 0; i < count; i++) {
             sum += parseFloat(data[i][attributeName]);
