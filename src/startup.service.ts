@@ -9,13 +9,13 @@ import { parse } from 'csv-parse';
 
 @Injectable()
 export class StartupService implements OnModuleInit {
-    constructor(private readonly bitcoinService: CoinsService, private httpService: HttpService) {}
+    constructor(private readonly coinsService: CoinsService, private httpService: HttpService) {}
 
     async onModuleInit() {
         // Parsing historical data saved from investing.com
-        if ((await this.bitcoinService.countDocuments(BitcoinMonthly.name, {})) === 0)
+        if ((await this.coinsService.countDocuments(BitcoinMonthly.name, {})) === 0)
             await this.parseHistoricalData('bitcoin.csv', BitcoinMonthly.name, BitcoinDaily.name);
-        if ((await this.bitcoinService.countDocuments(EthereumMonthly.name, {})) === 0)
+        if ((await this.coinsService.countDocuments(EthereumMonthly.name, {})) === 0)
             await this.parseHistoricalData('ethereum.csv', EthereumMonthly.name, EthereumDaily.name);
     }
 
@@ -96,8 +96,8 @@ export class StartupService implements OnModuleInit {
                         }
                     }
 
-                    await this.bitcoinService.insert(modelMonthly, Object.values(dataToWrite));
-                    await this.bitcoinService.insert(modelDaily, Object.values(dailysToWrite));
+                    await this.coinsService.insert(modelMonthly, Object.values(dataToWrite));
+                    await this.coinsService.insert(modelDaily, Object.values(dailysToWrite));
                     console.log(`Finished parsing ${source} ...`);
                 });
         } catch (e) {
