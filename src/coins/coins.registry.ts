@@ -60,3 +60,14 @@ export const Ethereum: Coin = {
 };
 
 export const SupportedCoins = [Bitcoin, Ethereum];
+
+function addPreFindHook(schema) {
+    schema.pre(/^find/, function () {
+        this.sort('-timestamp');
+        this.select('-_id -__v');
+    });
+}
+
+for (const coin of SupportedCoins) {
+    [coin.ValuesSchema, coin.HourlySchema, coin.DailySchema, coin.MonthlySchema].forEach(addPreFindHook);
+}

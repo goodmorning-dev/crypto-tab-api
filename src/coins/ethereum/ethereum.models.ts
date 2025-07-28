@@ -19,19 +19,7 @@ export class EthereumDaily extends BaseSchema {}
 @Schema({ collection: 'ethereum.monthly' })
 export class EthereumMonthly extends BaseSchema {}
 
-function addPreFindHook(schema) {
-    schema.pre(/^find/, function () {
-        this.sort('-timestamp');
-        this.select('-_id -__v');
-    });
-}
-
 export const EthereumValuesSchema = SchemaFactory.createForClass(EthereumValues);
 export const EthereumHourlySchema = SchemaFactory.createForClass(EthereumHourly);
 export const EthereumDailySchema = SchemaFactory.createForClass(EthereumDaily);
 export const EthereumMonthlySchema = SchemaFactory.createForClass(EthereumMonthly);
-
-addPreFindHook(EthereumValuesSchema);
-addPreFindHook(EthereumHourlySchema);
-addPreFindHook(EthereumDailySchema);
-addPreFindHook(EthereumMonthlySchema);
