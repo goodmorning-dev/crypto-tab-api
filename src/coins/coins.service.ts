@@ -1,91 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { BaseSchema } from './base.schema';
-import { BitcoinDaily, BitcoinHourly, BitcoinMonthly, BitcoinValues } from './bitcoin/bitcoin.models';
-import { EthereumDaily, EthereumHourly, EthereumMonthly, EthereumValues } from './ethereum/ethereum.models';
+import { ModuleRef } from '@nestjs/core';
+import { SupportedCoins } from './coins.registry';
 
 @Injectable()
 export class CoinsService {
-    constructor(
-        @InjectModel(BitcoinValues.name) private bitcoinValuesModel: Model<BitcoinValues>,
-        @InjectModel(BitcoinHourly.name) private bitcoinHourlyModel: Model<BitcoinHourly>,
-        @InjectModel(BitcoinDaily.name) private bitcoinDailyModel: Model<BitcoinDaily>,
-        @InjectModel(BitcoinMonthly.name) private bitcoinMonthlyModel: Model<BitcoinMonthly>,
-        @InjectModel(EthereumValues.name) private ethereumValuesModel: Model<EthereumValues>,
-        @InjectModel(EthereumHourly.name) private ethereumHourlyModel: Model<EthereumHourly>,
-        @InjectModel(EthereumDaily.name) private ethereumDailyModel: Model<EthereumDaily>,
-        @InjectModel(EthereumMonthly.name) private ethereumMonthlyModel: Model<EthereumMonthly>,
-    ) {}
+    private models: Record<string, Model<any>> = {};
+
+    constructor(private moduleRef: ModuleRef) {}
+
+    async onModuleInit() {
+        for (const coin of SupportedCoins) {
+            const modelNames = [coin.Values, coin.Hourly, coin.Daily, coin.Monthly];
+            for (const name of modelNames) {
+                this.models[name] = this.moduleRef.get(getModelToken(name), {
+                    strict: false,
+                });
+            }
+        }
+    }
 
     async create(modelName: string, data: BaseSchema) {
-        const model = this.getModel(modelName);
+        const model = this.models[modelName];
         const record = new model(data);
         return await record.save();
     }
 
     async find(modelName: string, filter: object) {
-        const model = this.getModel(modelName);
-        return await model.find(filter);
+        return this.models[modelName].find(filter);
     }
 
     async update(modelName: string, filter: object, data: object) {
-        const model = this.getModel(modelName);
-        await model.updateOne(filter, data, { upsert: true });
+        await this.models[modelName].updateOne(filter, data, { upsert: true });
     }
 
     async insert(modelName: string, data: object) {
-        const model = this.getModel(modelName);
         await this.delete(modelName, {});
-        await model.insertMany(data);
+        await this.models[modelName].insertMany(data);
     }
 
     async delete(modelName: string, filter: object) {
-        const model = this.getModel(modelName);
-        await model.deleteMany(filter);
+        await this.models[modelName].deleteMany(filter);
     }
 
     async countDocuments(modelName: string, filter: object) {
-        const model = this.getModel(modelName);
-        return await model.countDocuments(filter);
+        return this.models[modelName].countDocuments(filter);
     }
 
-    getModel(name: string): Model<any> {
-        switch (name) {
-            case BitcoinValues.name:
-                return this.bitcoinValuesModel;
-            case BitcoinHourly.name:
-                return this.bitcoinHourlyModel;
-            case BitcoinDaily.name:
-                return this.bitcoinDailyModel;
-            case BitcoinMonthly.name:
-                return this.bitcoinMonthlyModel;
-            case EthereumValues.name:
-                return this.ethereumValuesModel;
-            case EthereumHourly.name:
-                return this.ethereumHourlyModel;
-            case EthereumDaily.name:
-                return this.ethereumDailyModel;
-            case EthereumMonthly.name:
-                return this.ethereumMonthlyModel;
-            default:
-                throw new Error('Invalid model name');
-        }
-    }
-
-    getDataAveragePrice(data: any, attributeName: string) {
-        const count = data.length;
-        let avg = 0.0;
-        let sum = 0.0;
-
-        if (count === 0) return null;
-
-        for (let i = 0; i < count; i++) {
-            sum += parseFloat(data[i][attributeName]);
-        }
-
-        avg = parseFloat((sum / count).toFixed(2));
-
-        return avg;
+    getDataAveragePrice(data: any[], attributeName: string) {
+        if (!data.length) return null;
+        const sum = data.reduce((acc, item) => acc + parseFloat(item[attributeName]), 0);
+        return parseFloat((sum / data.length).toFixed(2));
     }
 }

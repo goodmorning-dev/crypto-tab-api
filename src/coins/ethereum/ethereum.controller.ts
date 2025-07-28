@@ -1,11 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { CoinsService } from '../coins.service';
-import { EthereumDaily, EthereumHourly, EthereumMonthly, EthereumValues } from './ethereum.models';
 import { BaseController } from '../base.controller';
+import { Ethereum } from '../coins.registry';
 
-@Controller('ethereum')
+@Controller(Ethereum.name)
 export class EthereumController extends BaseController {
     constructor(coinsService: CoinsService) {
-        super(coinsService, EthereumMonthly.name, EthereumDaily.name, EthereumHourly.name, EthereumValues.name);
+        super(coinsService, Ethereum.Monthly, Ethereum.Daily, Ethereum.Hourly, Ethereum.Values);
     }
 }

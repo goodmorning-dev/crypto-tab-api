@@ -7,6 +7,6 @@ export class BaseSchema {
     @Prop()
     value: number;
 
-    @Prop({ default: () => Math.floor(new Date().getTime() / 1000) })
+    @Prop({ default: () => Math.floor(Date.now() / 1000) })
     timestamp?: number;
 }

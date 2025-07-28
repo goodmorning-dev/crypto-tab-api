@@ -23,7 +23,7 @@ export class BaseController {
     async getYear() {
         try {
             const oneYearInSeconds = 12 * 30 * 24 * 3600;
-            const timestamp = Math.floor(new Date().getTime() / 1000) - oneYearInSeconds;
+            const timestamp = Math.floor(Date.now() / 1000) - oneYearInSeconds;
             return await this.coinsService.find(this.monthlyModel, { timestamp: { $gte: timestamp } });
         } catch (e) {
             throw new BadRequestException('An error has occurred');
@@ -34,7 +34,7 @@ export class BaseController {
     async getMonth() {
         try {
             return await this.coinsService.find(this.dailyModel, {
-                timestamp: { $gte: new Date().getTime() / 1000 - 30 * 24 * 3600 },
+                timestamp: { $gte: Date.now() / 1000 - 30 * 24 * 3600 },
             });
         } catch (e) {
             throw new BadRequestException('An error has occurred');
@@ -45,7 +45,7 @@ export class BaseController {
     async getWeek() {
         try {
             return await this.coinsService.find(this.dailyModel, {
-                timestamp: { $gte: new Date().getTime() / 1000 - 7 * 24 * 3600 },
+                timestamp: { $gte: Date.now() / 1000 - 7 * 24 * 3600 },
             });
         } catch (e) {
             throw new BadRequestException('An error has occurred');
@@ -56,7 +56,7 @@ export class BaseController {
     async getDay() {
         try {
             return await this.coinsService.find(this.hourlyModel, {
-                timestamp: { $gte: new Date().getTime() / 1000 - 24 * 3600 },
+                timestamp: { $gte: Date.now() / 1000 - 24 * 3600 },
             });
         } catch (e) {
             throw new BadRequestException('An error has occurred');
@@ -67,7 +67,7 @@ export class BaseController {
     async getHour() {
         try {
             return await this.coinsService.find(this.valuesModel, {
-                timestamp: { $gte: new Date().getTime() / 1000 - 3600 },
+                timestamp: { $gte: Date.now() / 1000 - 3600 },
             });
         } catch (e) {
             throw new BadRequestException('An error has occurred');
@@ -78,13 +78,13 @@ export class BaseController {
     async getNow() {
         try {
             const lastPrice = await this.coinsService.find(this.valuesModel, {
-                timestamp: { $gte: new Date().getTime() / 1000 - 20 * 60 },
+                timestamp: { $gte: Date.now() / 1000 - 20 * 60 },
             });
             const response = lastPrice[0].toObject();
             response.changePercent = {};
             const lastDayPrice = (
                 await this.coinsService.find(this.hourlyModel, {
-                    timestamp: { $gte: new Date().getTime() / 1000 - 24 * 3600 },
+                    timestamp: { $gte: Date.now() / 1000 - 24 * 3600 },
                 })
             ).reverse();
 
@@ -95,7 +95,7 @@ export class BaseController {
 
             const lastWeekPrice = (
                 await this.coinsService.find(this.dailyModel, {
-                    timestamp: { $gte: new Date().getTime() / 1000 - 7 * 24 * 3600 },
+                    timestamp: { $gte: Date.now() / 1000 - 7 * 24 * 3600 },
                 })
             ).reverse();
 
@@ -106,7 +106,7 @@ export class BaseController {
 
             const lastMonthPrice = (
                 await this.coinsService.find(this.dailyModel, {
-                    timestamp: { $gte: new Date().getTime() / 1000 - 30 * 24 * 3600 },
+                    timestamp: { $gte: Date.now() / 1000 - 30 * 24 * 3600 },
                 })
             ).reverse();
 

@@ -1,11 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CoinsService } from './coins/coins.service';
-import { BitcoinDaily, BitcoinMonthly } from './coins/bitcoin/bitcoin.models';
-import { EthereumDaily, EthereumMonthly } from './coins/ethereum/ethereum.models';
 import { HttpService } from '@nestjs/axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse } from 'csv-parse';
+import { Coin, SupportedCoins } from './coins/coins.registry';
 
 @Injectable()
 export class StartupService implements OnModuleInit {
@@ -13,23 +12,25 @@ export class StartupService implements OnModuleInit {
 
     async onModuleInit() {
         // Parsing historical data saved from investing.com
-        if ((await this.coinsService.countDocuments(BitcoinMonthly.name, {})) === 0)
-            await this.parseHistoricalData('bitcoin.csv', BitcoinMonthly.name, BitcoinDaily.name);
-        if ((await this.coinsService.countDocuments(EthereumMonthly.name, {})) === 0)
-            await this.parseHistoricalData('ethereum.csv', EthereumMonthly.name, EthereumDaily.name);
+        for (const coin of SupportedCoins) {
+            if ((await this.coinsService.countDocuments(coin.Monthly, {})) === 0) {
+                await this.parseHistoricalData(coin);
+            }
+        }
     }
 
-    async parseHistoricalData(source: string, modelMonthly: string, modelDaily: string) {
+    async parseHistoricalData(coin: Coin) {
         try {
-            console.log(`Parsing ${source} ...`);
+            console.log(`Parsing ${coin.csv_data} ...`);
             const parser = parse({ columns: true, trim: true, bom: true });
-            const inputFilePath = path.join(__dirname, '../src/historical_data', source);
+            const inputFilePath = path.join(__dirname, '../src/historical_data', coin.csv_data);
             const inputStream = fs.createReadStream(inputFilePath);
             const dataToWrite = {};
             const dailysToWrite = [];
             let firstRow;
+
             // Save last 60 days in DB
-            const lastNdaysBoundary = new Date().getTime() / 1000 - 60 * 24 * 3600;
+            const lastNdaysBoundary = Date.now() / 1000 - 60 * 24 * 3600;
             inputStream
                 .pipe(parser)
                 .on('data', (row) => {
@@ -39,7 +40,7 @@ export class StartupService implements OnModuleInit {
 
                     if (!firstRow) {
                         firstRow = row;
-                        firstRow.Date = date; //
+                        firstRow.Date = date;
                     }
 
                     if (!dataToWrite[monthlyTimestamp]) {
@@ -65,23 +66,12 @@ export class StartupService implements OnModuleInit {
                 })
                 .on('end', async () => {
                     // Get missing days from coingecko until today
-                    const diff = new Date().getTime() - new Date(firstRow.Date).getTime();
+                    const diff = Date.now() - new Date(firstRow.Date).getTime();
                     const differenceInDays = Math.floor(diff / (24 * 60 * 60 * 1000));
-                    let coinName = '';
-                    switch (modelMonthly) {
-                        case BitcoinMonthly.name:
-                            coinName = 'bitcoin';
-                            break;
-                        case EthereumMonthly.name:
-                            coinName = 'ethereum';
-                            break;
-                        default:
-                            throw new Error('Unsupported coin');
-                    }
                     if (differenceInDays > 0) {
                         const data = (
                             await this.httpService.axiosRef(
-                                `https://api.coingecko.com/api/v3/coins/${coinName}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=2`,
+                                `https://api.coingecko.com/api/v3/coins/${coin.name}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=2`,
                             )
                         ).data;
 
@@ -96,9 +86,9 @@ export class StartupService implements OnModuleInit {
                         }
                     }
 
-                    await this.coinsService.insert(modelMonthly, Object.values(dataToWrite));
-                    await this.coinsService.insert(modelDaily, Object.values(dailysToWrite));
-                    console.log(`Finished parsing ${source} ...`);
+                    await this.coinsService.insert(coin.Monthly, Object.values(dataToWrite));
+                    await this.coinsService.insert(coin.Daily, Object.values(dailysToWrite));
+                    console.log(`Finished parsing ${coin.csv_data} ...`);
                 });
         } catch (e) {
             console.log(e);
