@@ -23,7 +23,7 @@ export class ParserService implements OnModuleInit {
         try {
             console.log(`Parsing ${coin.csv_data} ...`);
             const parser = parse({ columns: true, trim: true, bom: true });
-            const inputFilePath = path.join(__dirname, '../src/historical_data', coin.csv_data);
+            const inputFilePath = path.join(__dirname, '../../src/historical_data', coin.csv_data);
             const inputStream = fs.createReadStream(inputFilePath);
             const dataToWrite = {};
             const dailysToWrite = [];
@@ -70,7 +70,7 @@ export class ParserService implements OnModuleInit {
 
                     if (date.getTime() / 1000 > lastNdaysBoundary) {
                         dailysToWrite.push({
-                            value: Number(row[cvsPriceField].toString().replace(',', '')),
+                            value: Number(row[cvsPriceField].toString().replace(',', '')).toFixed(coin.precision),
                             timestamp: new Date(date).getTime() / 1000,
                         });
                     }
