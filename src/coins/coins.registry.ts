@@ -22,7 +22,9 @@ import {
 
 export interface Coin {
     name: string;
+    csv_data_source: string;
     csv_data: string;
+    precision: number;
     Values: string;
     Hourly: string;
     Daily: string;
@@ -35,7 +37,9 @@ export interface Coin {
 
 export const Bitcoin: Coin = {
     name: 'bitcoin',
+    csv_data_source: 'investing.com',
     csv_data: 'bitcoin.csv',
+    precision: 2,
     Values: BitcoinValues.name,
     Hourly: BitcoinHourly.name,
     Daily: BitcoinDaily.name,
@@ -48,7 +52,9 @@ export const Bitcoin: Coin = {
 
 export const Ethereum: Coin = {
     name: 'ethereum',
+    csv_data_source: 'investing.com',
     csv_data: 'ethereum.csv',
+    precision: 2,
     Values: EthereumValues.name,
     Hourly: EthereumHourly.name,
     Daily: EthereumDaily.name,
