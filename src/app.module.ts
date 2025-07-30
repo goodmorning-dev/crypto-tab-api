@@ -3,7 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CoinsModule } from './coins/coins.module';
 import { SchedulerModule } from './scheduler/scheduler.module';
-import { StartupService } from './startup.service';
+import { ParserService } from './parser/parser.service';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
@@ -22,6 +22,6 @@ import { HttpModule } from '@nestjs/axios';
         SchedulerModule,
         HttpModule,
     ],
-    providers: [StartupService],
+    providers: [ParserService],
 })
 export class AppModule {}

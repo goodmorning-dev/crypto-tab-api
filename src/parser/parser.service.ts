@@ -1,17 +1,17 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { CoinsService } from './coins/coins.service';
+import { CoinsService } from '../coins/coins.service';
 import { HttpService } from '@nestjs/axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse } from 'csv-parse';
-import { Coin, SupportedCoins } from './coins/coins.registry';
+import { Coin, SupportedCoins } from '../coins/coins.registry';
 
 @Injectable()
-export class StartupService implements OnModuleInit {
+export class ParserService implements OnModuleInit {
     constructor(private readonly coinsService: CoinsService, private httpService: HttpService) {}
 
     async onModuleInit() {
-        // Parsing historical data saved from investing.com
+        // Parsing historical data from csv
         for (const coin of SupportedCoins) {
             if ((await this.coinsService.countDocuments(coin.Monthly, {})) === 0) {
                 await this.parseHistoricalData(coin);
@@ -27,51 +27,66 @@ export class StartupService implements OnModuleInit {
             const inputStream = fs.createReadStream(inputFilePath);
             const dataToWrite = {};
             const dailysToWrite = [];
-            let firstRow;
+            let firstRowDate: Date;
+            let lastRowDate: Date;
 
             // Save last 60 days in DB
             const lastNdaysBoundary = Date.now() / 1000 - 60 * 24 * 3600;
             inputStream
                 .pipe(parser)
                 .on('data', (row) => {
-                    const [month, day, year] = row.Date.split('/');
+                    const cvsPriceField = coin.csv_data_source === 'investing.com' ? 'Price' : 'price';
+                    let month: string, day: string, year: string;
+                    if (coin.csv_data_source === 'investing.com') {
+                        [month, day, year] = row.Date.split('/');
+                    } else if (coin.csv_data_source === 'coingecko.com') {
+                        [year, month, day] = row.snapped_at.slice(0, 10).split('-');
+                    }
+
                     const date = new Date(`${year}-${month}-${day}`);
                     const monthlyTimestamp = new Date(`${year}-${month}-01`).getTime() / 1000;
 
-                    if (!firstRow) {
-                        firstRow = row;
-                        firstRow.Date = date;
+                    if (!firstRowDate) {
+                        firstRowDate = date;
                     }
+
+                    lastRowDate = date;
 
                     if (!dataToWrite[monthlyTimestamp]) {
                         dataToWrite[monthlyTimestamp] = {};
                         dataToWrite[monthlyTimestamp].count = 1;
-                        dataToWrite[monthlyTimestamp].sum = Number(row.Price.toString().replace(',', ''));
-                        dataToWrite[monthlyTimestamp].value = Number(row.Price.toString().replace(',', ''));
+                        dataToWrite[monthlyTimestamp].sum = Number(row[cvsPriceField].toString().replace(',', ''));
+                        dataToWrite[monthlyTimestamp].value = Number(row[cvsPriceField].toString().replace(',', ''));
                         dataToWrite[monthlyTimestamp].timestamp = monthlyTimestamp;
                     } else {
                         dataToWrite[monthlyTimestamp].count++;
-                        dataToWrite[monthlyTimestamp].sum += Number(row.Price.toString().replace(',', ''));
+                        dataToWrite[monthlyTimestamp].sum += Number(row[cvsPriceField].toString().replace(',', ''));
                         dataToWrite[monthlyTimestamp].value = parseFloat(
-                            (dataToWrite[monthlyTimestamp].sum / dataToWrite[monthlyTimestamp].count).toFixed(2),
+                            (dataToWrite[monthlyTimestamp].sum / dataToWrite[monthlyTimestamp].count).toFixed(
+                                coin.precision,
+                            ),
                         );
                     }
 
                     if (date.getTime() / 1000 > lastNdaysBoundary) {
                         dailysToWrite.push({
-                            value: Number(row.Price.toString().replace(',', '')),
+                            value: Number(row[cvsPriceField].toString().replace(',', '')),
                             timestamp: new Date(date).getTime() / 1000,
                         });
                     }
                 })
                 .on('end', async () => {
                     // Get missing days from coingecko until today
-                    const diff = Date.now() - new Date(firstRow.Date).getTime();
+                    const diff =
+                        coin.csv_data_source === 'investing.com'
+                            ? Date.now() - new Date(firstRowDate).getTime()
+                            : Date.now() - new Date(lastRowDate).getTime();
                     const differenceInDays = Math.floor(diff / (24 * 60 * 60 * 1000));
+
                     if (differenceInDays > 0) {
                         const data = (
                             await this.httpService.axiosRef(
-                                `https://api.coingecko.com/api/v3/coins/${coin.name}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=2`,
+                                `https://api.coingecko.com/api/v3/coins/${coin.name}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=${coin.precision}`,
                             )
                         ).data;
 
