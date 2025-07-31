@@ -49,9 +49,9 @@ export class CoinsService {
         return this.models[modelName].countDocuments(filter);
     }
 
-    getDataAveragePrice(data: any[], attributeName: string) {
+    getDataAveragePrice(data: any[], precision: number) {
         if (!data.length) return null;
-        const sum = data.reduce((acc, item) => acc + parseFloat(item[attributeName]), 0);
-        return parseFloat((sum / data.length).toFixed(2));
+        const sum = data.reduce((acc, item) => acc + parseFloat(item['value']), 0);
+        return parseFloat((sum / data.length).toFixed(precision));
     }
 }

@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { BitcoinController } from './bitcoin/bitcoin.controller';
 import { EthereumController } from './ethereum/ethereum.controller';
 import { SupportedCoins } from './coins.registry';
+import { WALLETController } from './wallet/wallet.controller';
 
 const coinModels = SupportedCoins.flatMap((coin) => [
     { name: coin.Values, schema: coin.ValuesSchema },
@@ -14,7 +15,7 @@ const coinModels = SupportedCoins.flatMap((coin) => [
 
 @Module({
     imports: [MongooseModule.forFeature(coinModels)],
-    controllers: [BitcoinController, EthereumController],
+    controllers: [BitcoinController, EthereumController, WALLETController],
     providers: [CoinsService],
     exports: [CoinsService],
 })

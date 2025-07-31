@@ -27,7 +27,9 @@ export class PricesCron {
         const roundHourUTCtimestamp = UTCtimestamp - (UTCtimestamp % 3600);
 
         await Promise.allSettled(
-            SupportedCoins.map((coin) => this.updateData(coin.Values, coin.Hourly, roundHourUTCtimestamp)),
+            SupportedCoins.map((coin) =>
+                this.updateData(coin.Values, coin.Hourly, coin.precision, roundHourUTCtimestamp),
+            ),
         );
     }
 
@@ -37,7 +39,9 @@ export class PricesCron {
         const roundDayUTCtimestamp = UTCtimestamp - (UTCtimestamp % (24 * 3600));
 
         await Promise.allSettled(
-            SupportedCoins.map((coin) => this.updateData(coin.Hourly, coin.Daily, roundDayUTCtimestamp)),
+            SupportedCoins.map((coin) =>
+                this.updateData(coin.Hourly, coin.Daily, coin.precision, roundDayUTCtimestamp),
+            ),
         );
     }
 
@@ -48,18 +52,18 @@ export class PricesCron {
         const monthlyTimestamp = new Date(`${year}-${month.toString().padStart(2, '0')}-01`).getTime() / 1000;
 
         await Promise.allSettled(
-            SupportedCoins.map((coin) => this.updateData(coin.Daily, coin.Monthly, monthlyTimestamp)),
+            SupportedCoins.map((coin) => this.updateData(coin.Daily, coin.Monthly, coin.precision, monthlyTimestamp)),
         );
     }
 
-    async updateData(modelSource: string, modelTarget: string, timestamp: number) {
+    async updateData(modelSource: string, modelTarget: string, precision: number, timestamp: number) {
         const data = await this.coinsService.find(modelSource, {
             timestamp: {
                 $gte: timestamp,
             },
         });
 
-        const avgPrice = this.coinsService.getDataAveragePrice(data, 'value');
+        const avgPrice = this.coinsService.getDataAveragePrice(data, precision);
 
         if (avgPrice === null) return;
 

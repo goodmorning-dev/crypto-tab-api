@@ -19,6 +19,16 @@ import {
     EthereumValues,
     EthereumValuesSchema,
 } from './ethereum/ethereum.models';
+import {
+    WALLETDaily,
+    WALLETDailySchema,
+    WALLETHourly,
+    WALLETHourlySchema,
+    WALLETMonthly,
+    WALLETMonthlySchema,
+    WALLETValues,
+    WALLETValuesSchema,
+} from './wallet/wallet.models';
 
 export interface Coin {
     name: string;
@@ -65,7 +75,22 @@ export const Ethereum: Coin = {
     MonthlySchema: EthereumMonthlySchema,
 };
 
-export const SupportedCoins = [Bitcoin, Ethereum];
+export const WALLET: Coin = {
+    name: 'ambire-wallet',
+    csv_data_source: 'coingecko.com',
+    csv_data: 'wallet.csv',
+    precision: 8,
+    Values: WALLETValues.name,
+    Hourly: WALLETHourly.name,
+    Daily: WALLETDaily.name,
+    Monthly: WALLETMonthly.name,
+    ValuesSchema: WALLETValuesSchema,
+    HourlySchema: WALLETHourlySchema,
+    DailySchema: WALLETDailySchema,
+    MonthlySchema: WALLETMonthlySchema,
+};
+
+export const SupportedCoins = [Bitcoin, Ethereum, WALLET];
 
 function addPreFindHook(schema) {
     schema.pre(/^find/, function () {
