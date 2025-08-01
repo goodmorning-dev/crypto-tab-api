@@ -86,7 +86,7 @@ export class ParserService implements OnModuleInit {
                     if (differenceInDays > 0) {
                         const data = (
                             await this.httpService.axiosRef(
-                                `https://api.coingecko.com/api/v3/coins/${coin.name}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=${coin.precision}`,
+                                `https://api.coingecko.com/api/v3/coins/${coin.coingecko_id}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=${coin.precision}`,
                             )
                         ).data;
 

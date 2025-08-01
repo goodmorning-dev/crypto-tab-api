@@ -8,18 +8,18 @@ import { SupportedCoins } from '../coins/coins.registry';
 export class PricesCron {
     constructor(private coinsService: CoinsService, private httpService: HttpService) {}
 
-    private coin_names = SupportedCoins.map((coin) => coin.name).join(',');
+    private coingecko_ids = SupportedCoins.map((coin) => coin.coingecko_id).join(',');
 
     @Cron(CronExpression.EVERY_5_MINUTES)
     async getCurrentPrice() {
         const data = (
             await this.httpService.axiosRef(
-                `https://api.coingecko.com/api/v3/simple/price?ids=${this.coin_names}&vs_currencies=usd`,
+                `https://api.coingecko.com/api/v3/simple/price?ids=${this.coingecko_ids}&vs_currencies=usd`,
             )
         ).data;
         console.log(data);
         await Promise.allSettled(
-            SupportedCoins.map((coin) => this.coinsService.create(coin.Values, { value: data[coin.name].usd })),
+            SupportedCoins.map((coin) => this.coinsService.create(coin.Values, { value: data[coin.coingecko_id].usd })),
         );
 
         // Update hourly prices

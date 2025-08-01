@@ -32,6 +32,7 @@ import {
 
 export interface Coin {
     name: string;
+    coingecko_id: string;
     csv_data_source: string;
     csv_data: string;
     precision: number;
@@ -47,6 +48,7 @@ export interface Coin {
 
 export const Bitcoin: Coin = {
     name: 'bitcoin',
+    coingecko_id: 'bitcoin',
     csv_data_source: 'investing.com',
     csv_data: 'bitcoin.csv',
     precision: 2,
@@ -62,6 +64,7 @@ export const Bitcoin: Coin = {
 
 export const Ethereum: Coin = {
     name: 'ethereum',
+    coingecko_id: 'ethereum',
     csv_data_source: 'investing.com',
     csv_data: 'ethereum.csv',
     precision: 2,
@@ -76,7 +79,8 @@ export const Ethereum: Coin = {
 };
 
 export const WALLET: Coin = {
-    name: 'ambire-wallet',
+    name: 'wallet',
+    coingecko_id: 'ambire-wallet',
     csv_data_source: 'coingecko.com',
     csv_data: 'wallet.csv',
     precision: 8,
