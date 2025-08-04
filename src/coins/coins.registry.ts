@@ -29,6 +29,16 @@ import {
     WALLETValues,
     WALLETValuesSchema,
 } from './wallet/wallet.models';
+import {
+    HederaDaily,
+    HederaDailySchema,
+    HederaHourly,
+    HederaHourlySchema,
+    HederaMonthly,
+    HederaMonthlySchema,
+    HederaValues,
+    HederaValuesSchema,
+} from './hedera/hedera.models';
 
 export interface Coin {
     name: string;
@@ -94,7 +104,23 @@ export const WALLET: Coin = {
     MonthlySchema: WALLETMonthlySchema,
 };
 
-export const SupportedCoins = [Bitcoin, Ethereum, WALLET];
+export const Hedera: Coin = {
+    name: 'hedera',
+    coingecko_id: 'hedera-hashgraph',
+    csv_data_source: 'coingecko.com',
+    csv_data: 'hedera.csv',
+    precision: 6,
+    Values: HederaValues.name,
+    Hourly: HederaHourly.name,
+    Daily: HederaDaily.name,
+    Monthly: HederaMonthly.name,
+    ValuesSchema: HederaValuesSchema,
+    HourlySchema: HederaHourlySchema,
+    DailySchema: HederaDailySchema,
+    MonthlySchema: HederaMonthlySchema,
+};
+
+export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera];
 
 function addPreFindHook(schema) {
     schema.pre(/^find/, function () {
