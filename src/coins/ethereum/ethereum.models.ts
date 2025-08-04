@@ -7,16 +7,18 @@ export type EthereumHourlyDocument = HydratedDocument<EthereumHourly>;
 export type EthereumDailyDocument = HydratedDocument<EthereumDaily>;
 export type EthereumMonthlyDocument = HydratedDocument<EthereumMonthly>;
 
-@Schema({ collection: 'ethereum.values' })
+const collection_prefix = 'ethereum';
+
+@Schema({ collection: `${collection_prefix}.values` })
 export class EthereumValues extends BaseSchema {}
 
-@Schema({ collection: 'ethereum.hourly' })
+@Schema({ collection: `${collection_prefix}.hourly` })
 export class EthereumHourly extends BaseSchema {}
 
-@Schema({ collection: 'ethereum.daily' })
+@Schema({ collection: `${collection_prefix}.daily` })
 export class EthereumDaily extends BaseSchema {}
 
-@Schema({ collection: 'ethereum.monthly' })
+@Schema({ collection: `${collection_prefix}.monthly` })
 export class EthereumMonthly extends BaseSchema {}
 
 export const EthereumValuesSchema = SchemaFactory.createForClass(EthereumValues);

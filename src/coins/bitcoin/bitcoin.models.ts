@@ -7,16 +7,18 @@ export type BitcoinHourlyDocument = HydratedDocument<BitcoinHourly>;
 export type BitcoinDailyDocument = HydratedDocument<BitcoinDaily>;
 export type BitcoinMonthlyDocument = HydratedDocument<BitcoinMonthly>;
 
-@Schema({ collection: 'bitcoin.values' })
+const collection_prefix = 'bitcoin';
+
+@Schema({ collection: `${collection_prefix}.values` })
 export class BitcoinValues extends BaseSchema {}
 
-@Schema({ collection: 'bitcoin.hourly' })
+@Schema({ collection: `${collection_prefix}.hourly` })
 export class BitcoinHourly extends BaseSchema {}
 
-@Schema({ collection: 'bitcoin.daily' })
+@Schema({ collection: `${collection_prefix}.daily` })
 export class BitcoinDaily extends BaseSchema {}
 
-@Schema({ collection: 'bitcoin.monthly' })
+@Schema({ collection: `${collection_prefix}.monthly` })
 export class BitcoinMonthly extends BaseSchema {}
 
 export const BitcoinValuesSchema = SchemaFactory.createForClass(BitcoinValues);

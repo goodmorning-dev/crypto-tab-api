@@ -7,16 +7,18 @@ export type WALLETHourlyDocument = HydratedDocument<WALLETHourly>;
 export type WALLETDailyDocument = HydratedDocument<WALLETDaily>;
 export type WALLETMonthlyDocument = HydratedDocument<WALLETMonthly>;
 
-@Schema({ collection: 'wallet.values' })
+const collection_prefix = 'wallet';
+
+@Schema({ collection: `${collection_prefix}.values` })
 export class WALLETValues extends BaseSchema {}
 
-@Schema({ collection: 'wallet.hourly' })
+@Schema({ collection: `${collection_prefix}.hourly` })
 export class WALLETHourly extends BaseSchema {}
 
-@Schema({ collection: 'wallet.daily' })
+@Schema({ collection: `${collection_prefix}.daily` })
 export class WALLETDaily extends BaseSchema {}
 
-@Schema({ collection: 'wallet.monthly' })
+@Schema({ collection: `${collection_prefix}.monthly` })
 export class WALLETMonthly extends BaseSchema {}
 
 export const WALLETValuesSchema = SchemaFactory.createForClass(WALLETValues);

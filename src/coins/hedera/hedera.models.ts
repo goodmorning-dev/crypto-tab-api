@@ -7,16 +7,18 @@ export type HederaHourlyDocument = HydratedDocument<HederaHourly>;
 export type HederaDailyDocument = HydratedDocument<HederaDaily>;
 export type HederaMonthlyDocument = HydratedDocument<HederaMonthly>;
 
-@Schema({ collection: 'hedera.values' })
+const collection_prefix = 'hedera';
+
+@Schema({ collection: `${collection_prefix}.values` })
 export class HederaValues extends BaseSchema {}
 
-@Schema({ collection: 'hedera.hourly' })
+@Schema({ collection: `${collection_prefix}.hourly` })
 export class HederaHourly extends BaseSchema {}
 
-@Schema({ collection: 'hedera.daily' })
+@Schema({ collection: `${collection_prefix}.daily` })
 export class HederaDaily extends BaseSchema {}
 
-@Schema({ collection: 'hedera.monthly' })
+@Schema({ collection: `${collection_prefix}.monthly` })
 export class HederaMonthly extends BaseSchema {}
 
 export const HederaValuesSchema = SchemaFactory.createForClass(HederaValues);
