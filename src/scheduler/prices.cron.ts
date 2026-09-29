@@ -1,12 +1,17 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CoinsService } from '../coins/coins.service';
 import { SupportedCoins } from '../coins/coins.registry';
 
 @Injectable()
 export class PricesCron {
-    constructor(private coinsService: CoinsService, private httpService: HttpService) {}
+    constructor(
+        private coinsService: CoinsService,
+        private httpService: HttpService,
+        private configService: ConfigService,
+    ) {}
 
     private coingecko_ids = SupportedCoins.map((coin) => coin.coingecko_id).join(',');
 
@@ -15,6 +20,7 @@ export class PricesCron {
         const data = (
             await this.httpService.axiosRef(
                 `https://api.coingecko.com/api/v3/simple/price?ids=${this.coingecko_ids}&vs_currencies=usd`,
+                { headers: { 'x-cg-demo-api-key': this.configService.get<string>('COINGECKO_API_KEY') } },
             )
         ).data;
         console.log(data);

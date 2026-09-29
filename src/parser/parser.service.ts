@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { CoinsService } from '../coins/coins.service';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parse } from 'csv-parse';
@@ -8,7 +9,11 @@ import { Coin, SupportedCoins } from '../coins/coins.registry';
 
 @Injectable()
 export class ParserService implements OnModuleInit {
-    constructor(private readonly coinsService: CoinsService, private httpService: HttpService) {}
+    constructor(
+        private readonly coinsService: CoinsService,
+        private httpService: HttpService,
+        private configService: ConfigService,
+    ) {}
 
     async onModuleInit() {
         // Parsing historical data from csv
@@ -87,6 +92,11 @@ export class ParserService implements OnModuleInit {
                         const data = (
                             await this.httpService.axiosRef(
                                 `https://api.coingecko.com/api/v3/coins/${coin.coingecko_id}/market_chart?vs_currency=usd&days=${differenceInDays}&interval=daily&precision=${coin.precision}`,
+                                {
+                                    headers: {
+                                        'x-cg-demo-api-key': this.configService.get<string>('COINGECKO_API_KEY'),
+                                    },
+                                },
                             )
                         ).data;
 

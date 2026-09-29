@@ -80,6 +80,8 @@ export class BaseController {
             const lastPrice = await this.coinsService.find(this.valuesModel, {
                 timestamp: { $gte: Date.now() / 1000 - 20 * 60 },
             });
+            if (lastPrice.length === 0) return [];
+
             const response = lastPrice[0].toObject();
             response.changePercent = {};
             const lastDayPrice = (
