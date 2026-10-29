@@ -6,6 +6,7 @@ import { EthereumController } from './ethereum/ethereum.controller';
 import { SupportedCoins } from './coins.registry';
 import { WALLETController } from './wallet/wallet.controller';
 import { HederaController } from './hedera/hedera.controller';
+import { SolanaController } from './solana/solana.controller';
 
 const coinModels = SupportedCoins.flatMap((coin) => [
     { name: coin.Values, schema: coin.ValuesSchema },
@@ -16,7 +17,7 @@ const coinModels = SupportedCoins.flatMap((coin) => [
 
 @Module({
     imports: [MongooseModule.forFeature(coinModels)],
-    controllers: [BitcoinController, EthereumController, WALLETController, HederaController],
+    controllers: [BitcoinController, EthereumController, WALLETController, HederaController, SolanaController],
     providers: [CoinsService],
     exports: [CoinsService],
 })
