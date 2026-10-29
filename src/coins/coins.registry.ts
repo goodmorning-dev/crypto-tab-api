@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Query, Schema } from 'mongoose';
 import {
     BitcoinDaily,
     BitcoinDailySchema,
@@ -226,8 +226,8 @@ export const DOGE: Coin = {
 
 export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana, BNB, XRP, DOGE];
 
-function addPreFindHook(schema) {
-    schema.pre(/^find/, function () {
+function addPreFindHook(schema: Schema) {
+    schema.pre(/^find/, function (this: Query<unknown, unknown>) {
         this.sort('-timestamp');
         this.select('-_id -__v');
     });
