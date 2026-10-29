@@ -83,43 +83,28 @@ export class BaseController {
             if (lastPrice.length === 0) return [];
 
             const response = lastPrice[0].toObject();
-            response.changePercent = {};
-            const lastDayPrice = (
-                await this.coinsService.find(this.hourlyModel, {
-                    timestamp: { $gte: Date.now() / 1000 - 24 * 3600 },
-                })
-            ).reverse();
-
-            response.changePercent.dayAgo = (
-                100 *
-                ((response.value - lastDayPrice[0].value) / lastDayPrice[0].value)
-            ).toFixed(2);
-
-            const lastWeekPrice = (
-                await this.coinsService.find(this.dailyModel, {
-                    timestamp: { $gte: Date.now() / 1000 - 7 * 24 * 3600 },
-                })
-            ).reverse();
-
-            response.changePercent.weekAgo = (
-                100 *
-                ((response.value - lastWeekPrice[0].value) / lastWeekPrice[0].value)
-            ).toFixed(2);
-
-            const lastMonthPrice = (
-                await this.coinsService.find(this.dailyModel, {
-                    timestamp: { $gte: Date.now() / 1000 - 30 * 24 * 3600 },
-                })
-            ).reverse();
-
-            response.changePercent.monthAgo = (
-                100 *
-                ((response.value - lastMonthPrice[0].value) / lastMonthPrice[0].value)
-            ).toFixed(2);
+            response.changePercent = {
+                dayAgo: await this.getChangePercent(response.value, this.hourlyModel, 24 * 3600),
+                weekAgo: await this.getChangePercent(response.value, this.dailyModel, 7 * 24 * 3600),
+                monthAgo: await this.getChangePercent(response.value, this.dailyModel, 30 * 24 * 3600),
+            };
 
             return [response];
         } catch (e) {
+            console.log(e);
             throw new BadRequestException('An error has occurred');
         }
+    }
+
+    // Returns null when there is no reference price in the period (e.g. after downtime)
+    private async getChangePercent(currentValue: number, modelName: string, periodInSeconds: number) {
+        const prices = await this.coinsService.find(modelName, {
+            timestamp: { $gte: Date.now() / 1000 - periodInSeconds },
+        });
+        // find() sorts newest first, so the last one is the oldest price in the period
+        const oldestPrice = prices[prices.length - 1];
+        if (!oldestPrice || !oldestPrice.value) return null;
+
+        return (100 * ((currentValue - oldestPrice.value) / oldestPrice.value)).toFixed(2);
     }
 }
