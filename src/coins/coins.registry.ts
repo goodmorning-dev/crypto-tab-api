@@ -49,6 +49,16 @@ import {
     SolanaValues,
     SolanaValuesSchema,
 } from './solana/solana.models';
+import {
+    BNBDaily,
+    BNBDailySchema,
+    BNBHourly,
+    BNBHourlySchema,
+    BNBMonthly,
+    BNBMonthlySchema,
+    BNBValues,
+    BNBValuesSchema,
+} from './bnb/bnb.models';
 
 export interface Coin {
     name: string;
@@ -146,7 +156,23 @@ export const Solana: Coin = {
     MonthlySchema: SolanaMonthlySchema,
 };
 
-export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana];
+export const BNB: Coin = {
+    name: 'bnb',
+    coingecko_id: 'binancecoin',
+    csv_data_source: 'coingecko.com',
+    csv_data: 'bnb.csv',
+    precision: 2,
+    Values: BNBValues.name,
+    Hourly: BNBHourly.name,
+    Daily: BNBDaily.name,
+    Monthly: BNBMonthly.name,
+    ValuesSchema: BNBValuesSchema,
+    HourlySchema: BNBHourlySchema,
+    DailySchema: BNBDailySchema,
+    MonthlySchema: BNBMonthlySchema,
+};
+
+export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana, BNB];
 
 function addPreFindHook(schema) {
     schema.pre(/^find/, function () {
