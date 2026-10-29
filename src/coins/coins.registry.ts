@@ -59,6 +59,16 @@ import {
     BNBValues,
     BNBValuesSchema,
 } from './bnb/bnb.models';
+import {
+    XRPDaily,
+    XRPDailySchema,
+    XRPHourly,
+    XRPHourlySchema,
+    XRPMonthly,
+    XRPMonthlySchema,
+    XRPValues,
+    XRPValuesSchema,
+} from './xrp/xrp.models';
 
 export interface Coin {
     name: string;
@@ -172,7 +182,23 @@ export const BNB: Coin = {
     MonthlySchema: BNBMonthlySchema,
 };
 
-export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana, BNB];
+export const XRP: Coin = {
+    name: 'xrp',
+    coingecko_id: 'ripple',
+    csv_data_source: 'coingecko.com',
+    csv_data: 'xrp.csv',
+    precision: 4,
+    Values: XRPValues.name,
+    Hourly: XRPHourly.name,
+    Daily: XRPDaily.name,
+    Monthly: XRPMonthly.name,
+    ValuesSchema: XRPValuesSchema,
+    HourlySchema: XRPHourlySchema,
+    DailySchema: XRPDailySchema,
+    MonthlySchema: XRPMonthlySchema,
+};
+
+export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana, BNB, XRP];
 
 function addPreFindHook(schema) {
     schema.pre(/^find/, function () {
