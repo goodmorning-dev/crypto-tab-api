@@ -9,6 +9,7 @@ import { HederaController } from './hedera/hedera.controller';
 import { SolanaController } from './solana/solana.controller';
 import { BNBController } from './bnb/bnb.controller';
 import { XRPController } from './xrp/xrp.controller';
+import { DOGEController } from './doge/doge.controller';
 
 const coinModels = SupportedCoins.flatMap((coin) => [
     { name: coin.Values, schema: coin.ValuesSchema },
@@ -27,6 +28,7 @@ const coinModels = SupportedCoins.flatMap((coin) => [
         SolanaController,
         BNBController,
         XRPController,
+        DOGEController,
     ],
     providers: [CoinsService],
     exports: [CoinsService],

@@ -69,6 +69,16 @@ import {
     XRPValues,
     XRPValuesSchema,
 } from './xrp/xrp.models';
+import {
+    DOGEDaily,
+    DOGEDailySchema,
+    DOGEHourly,
+    DOGEHourlySchema,
+    DOGEMonthly,
+    DOGEMonthlySchema,
+    DOGEValues,
+    DOGEValuesSchema,
+} from './doge/doge.models';
 
 export interface Coin {
     name: string;
@@ -198,7 +208,23 @@ export const XRP: Coin = {
     MonthlySchema: XRPMonthlySchema,
 };
 
-export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana, BNB, XRP];
+export const DOGE: Coin = {
+    name: 'doge',
+    coingecko_id: 'dogecoin',
+    csv_data_source: 'coingecko.com',
+    csv_data: 'doge.csv',
+    precision: 6,
+    Values: DOGEValues.name,
+    Hourly: DOGEHourly.name,
+    Daily: DOGEDaily.name,
+    Monthly: DOGEMonthly.name,
+    ValuesSchema: DOGEValuesSchema,
+    HourlySchema: DOGEHourlySchema,
+    DailySchema: DOGEDailySchema,
+    MonthlySchema: DOGEMonthlySchema,
+};
+
+export const SupportedCoins = [Bitcoin, Ethereum, WALLET, Hedera, Solana, BNB, XRP, DOGE];
 
 function addPreFindHook(schema) {
     schema.pre(/^find/, function () {
